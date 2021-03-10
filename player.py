@@ -25,9 +25,6 @@ class Player(fullDeck):
         
         print("\n","----x----")
 
-    def roundReset(self):
-        self.state = 'P' # Olhar
-
     def handReset(self):
         self.hand = []
         self.points = 0
