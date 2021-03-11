@@ -8,6 +8,6 @@ There are a few things that I hope I'll be fixing soon:
 - There's no ranking for the higher card, so if two people have a pair, they'll be sharing the pot, even though probably one of them has a higher card pair.
 - There's a single raise limit for each round, so we can't have a raise on a raise.
 
-My bigger goal here is to create a display using the pygame package!
+My bigger goal here is to create a display using the pygame package + add dealer/small blind/big blind features!
 
 I'm still getting used to using classes, but I'm very excited with my studies on programming and where this might go.
