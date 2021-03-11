@@ -37,7 +37,7 @@ class RoundGenerator(fullDeck):
             self.tableSet.append(which)
             deck1.removeCard(which)
 
-    def firstReveal(self):
+    def firstReveal(self): 
         firstFlop = []
         print("THE TABLE'S CARDS ARE:")
         for c in range(3):
@@ -65,8 +65,8 @@ class RoundGenerator(fullDeck):
             print(self.tableSet[c], end=' ')
 
     def partialReset(self):
-        self.__raised = False
-        self.__raiseAmount = 0
+        self.raised = False
+        self.raiseAmount = 0
     
     def fullReset(self):
         self.tableSet = []

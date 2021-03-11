@@ -3,7 +3,7 @@ from fullDeck import fullDeck, RoundGenerator, deck1
 from player import Player
 
 
-def createPlayers():
+def createPlayers(): # Function for creating n players:
     for c in range(number):
         name = input("Choose a player name.")
         player1 = Player(1500,name,'P')
@@ -11,7 +11,7 @@ def createPlayers():
         playersList.append(player1)
 
 
-def roundProgress(flop):
+def roundProgress(flop): # Function for every round progress:
 
     for player in playersList:
         if round1.raised == True:
@@ -26,7 +26,7 @@ def roundProgress(flop):
             print("--x--")
             playerOptions(player)
     
-    if round1.raised == True:
+    if round1.raised == True:  
         for player in playersList:
             if player.wallet > 0 and player.state == 'P' and player.currentBet!=round1.raiseAmount:
                 print("The current pot is $", round1.pot)
@@ -37,21 +37,22 @@ def roundProgress(flop):
                 print("--x--")
                 playerOptions(player)
 
-        round1.raised = False
+        round1.partialReset()
 
 
-
-def winner():
+def Winner(): # Function that will determine who is the winner of the round
     points = []
     if foldedPlayers == len(playersList)-1:
         for player in playersList:
             if player.state == 'P':
                 print("The winner is {}! You won ${}!".format(player.name, round1.pot))
                 player.wallet+=round1.pot
-        endRound()
+
     else:
+        
         for player in playersList:
-            points.append(player.points)
+            if player.state == 'P':
+                points.append(player.points)
         most = max(points)
         if points.count(most)>1:
             round1.pot = round1.pot/points.count(most)
@@ -65,17 +66,24 @@ def winner():
                     print("{} won! You won ${}.".format(player.name, round1.pot))
                     player.wallet+=round1.pot
 
-def endRound():
+def endRound(): # Function for ending the current round
     for player in playersList:
-        player.handReset()
+        if player.wallet>0:
+            player.handReset()
     round1.fullReset()
     deck1.restartDeck()
+    
+def restartRound(): # Function for setting a new round
+    for player in playersList:
+        if player.wallet>0:
+            player.Shuffle()
+    round1.tableGen()
 
 
 # Pair = 1 Two Pairs = 2 Three of a Kind = 3 Straight = 4 Flush = 5 Full House = 6 
 # Four of a Kind = 7 Straight Flush = 8 Royal Flush = 9
 
-def handChecker(flop,who):
+def handChecker(flop,who): 
     
     who.allCards = []
     who.allCards = who.hand.copy()
@@ -155,7 +163,7 @@ def handChecker(flop,who):
     ranksStr = '' # If the sequence has an Ace, it will be seen as 1 here.
     ranksStr2 = '' # If the sequence has an Ace, it will be seen as 14 here.
     
-    ranks_pass = list(set(ranks_pass))
+    
     # Transforming the ranks list in a int list:        
     for i in ranks_pass:
         if i == 'A':
@@ -205,19 +213,19 @@ def handChecker(flop,who):
     
     # Checking if the rank string is in the sequence string:
     
-    if ranksStr in sequence and Fchecker == 1:
+    if sequence.find(ranksStr)!=-1 and Fchecker == 1:
         print("You have a straight flush!")
         who.points+=8
-    elif ranksStr in sequence and Fchecker == 0:
+    elif sequence.find(ranksStr)!=-1 and Fchecker == 0:
         print("You have a straight!")
         who.points+=4
 
     # Second checker, whenever Ace is 14.    
 
-    if ranksStr2 in sequence and Fchecker == 1:
+    if sequence.find(ranksStr2)!=-1 and Fchecker == 1:
         print("You have a straight flush!")
         who.points+=8
-    elif ranksStr2 in sequence and Fchecker == 0:
+    elif sequence.find(ranksStr2)!=-1 and Fchecker == 0:
         print("You have a straight!")
         who.points+=4
     elif ranksStr2 == '1011121314' and Fchecker == 1:
@@ -242,6 +250,9 @@ def playerOptions(who):
         
         if choice == 1:
             amount = int(input("Type your raise amount."))
+            while amount > player.wallet:
+                print("Error! You can't bet more than you have.")
+                amount = int(input("Type your raise amount."))
             round1.pot+=amount
             who.wallet-=amount
             who.currentBet+=amount
@@ -289,6 +300,7 @@ playersList = []
 global foldedPlayers
 foldedPlayers = 0
 
+
 print("----x----\nWELCOME TO POKER'N'PYTHON\n----x----")
 
 number = int(input("Type the number of players. It can't be over than 8."))
@@ -301,24 +313,46 @@ createPlayers()
 round1 = RoundGenerator(0,False)
 round1.tableGen()
 
-print("Handing out cards...")
-round1.firstReveal()
-roundProgress(round1.firstReveal())
 
-if foldedPlayers == len(playersList)-1:
-    winner()
-    endRound()
+KP = 1
+while KP == 1:
+    out = 0
+    if KP == 2:
+        break
+    
+    for player in playersList:
+        if player.wallet == 0:
+            out+=1
+        if player.wallet > 0:
+            winner = player.name
+    if out == len(playersList)-1:
+        print("Everyone ran out of money! {} is the winner.".format(winner))
+        endRound()
+        break
 
-else:
-    print("Second round starting...")
-    round1.secondReveal()
-    roundProgress(round1.secondReveal())
+    print("Handing out cards...")
+    roundProgress(round1.firstReveal())
+
     if foldedPlayers == len(playersList)-1:
-        winner()
+        Winner()
         endRound()
+        restartRound()
     else:
-        print("Last round starting...")
-        round1.thirdReveal()
-        roundProgress(round1.tableSet)
-        winner()
-        endRound()
+        print("Second round starting...")
+        roundProgress(round1.secondReveal())
+        if foldedPlayers == len(playersList)-1:
+            Winner()
+            endRound()
+            restartRound()
+        else:
+            print("Last round starting...")
+            round1.thirdReveal()
+            roundProgress(round1.tableSet)
+            Winner()
+            endRound()
+            restartRound()
+    
+    KP = int(input("Do you want to keep playing? Type '1' for YES and '2' for NO."))
+    if KP!=1 and KP!=2:
+        print("You have to choose between 1 or 2.")
+        KP = int(input("Do you want to keep playing? Type '1' for YES and '2' for NO."))
